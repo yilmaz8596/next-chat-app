@@ -6,7 +6,7 @@ import { toast } from "sonner";
 import { AvatarGenerator } from "random-avatar-generator";
 import { uploadImage } from "@/app/utils/uploadImage";
 import { getFirestore } from "firebase/firestore";
-import { doc, setDoc, getDoc } from "firebase/firestore";
+import { doc, setDoc, getDoc, getDocs, collection } from "firebase/firestore";
 import {
   createUserWithEmailAndPassword,
   fetchSignInMethodsForEmail,
@@ -28,15 +28,19 @@ const AuthContext = createContext<{
   logout: () => void;
   register: (values: z.infer<typeof registerSchema>) => Promise<void>;
   getUser: (uid: string) => Promise<User | null>;
+  getAllUsers: () => Promise<User[]>;
   userId: string | null;
   loading: boolean;
+  user: User | null;
 }>({
   login: async () => {},
   logout: () => {},
   register: async () => {},
   getUser: async () => null,
+  getAllUsers: async () => [],
   userId: null,
   loading: true,
+  user: null,
 });
 
 export const useAuth = () => useContext(AuthContext);
@@ -44,16 +48,26 @@ export const useAuth = () => useContext(AuthContext);
 export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const [userId, setUserId] = useState<string | null>(null);
   const [loading, setLoading] = useState(true);
+  const [user, setUser] = useState<User | null>(null);
   const firestore = getFirestore();
 
   useEffect(() => {
-    const unsubscribe = auth.onAuthStateChanged((user) => {
-      if (user) {
-        setUserId(user.uid);
-      } else {
-        setUserId(null);
+    const unsubscribe = auth.onAuthStateChanged(async (firebaseUser) => {
+      try {
+        if (firebaseUser) {
+          setUserId(firebaseUser.uid);
+          // Fetch user data when auth state changes
+          const userData = await getUser(firebaseUser.uid);
+          setUser(userData);
+        } else {
+          setUserId(null);
+          setUser(null);
+        }
+      } catch (error) {
+        console.error("Auth state change error:", error);
+      } finally {
+        setLoading(false);
       }
-      setLoading(false);
     });
 
     return () => unsubscribe();
@@ -106,6 +120,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
       await signInWithEmailAndPassword(auth, email, password);
       if (auth.currentUser) {
         setUserId(auth.currentUser.uid);
+        const userData = await getUser(auth.currentUser.uid);
+        setUser(userData);
         toast.success("Login successful");
         router.push("/chat-board");
       }
@@ -116,7 +132,6 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   };
 
   const getUser = async (uid: string) => {
-    if (loading || !uid) return null;
     try {
       const docRef = doc(firestore, "users", uid);
       const docSnap = await getDoc(docRef);
@@ -138,6 +153,27 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     }
   };
 
+  const getAllUsers = async () => {
+    try {
+      const usersRef = collection(firestore, "users");
+      const snapshot = await getDocs(usersRef);
+      const users = snapshot.docs.map((doc) => {
+        const data = doc.data();
+        return {
+          id: doc.id,
+          email: data.email,
+          userName: data.userName,
+          avatar: data.avatarUrl,
+        };
+      });
+      return users;
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      toast.error("Error fetching users");
+      return [];
+    }
+  };
+
   return (
     <AuthContext.Provider
       value={{
@@ -147,6 +183,8 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
         getUser,
         userId,
         loading,
+        getAllUsers,
+        user,
       }}
     >
       {children}

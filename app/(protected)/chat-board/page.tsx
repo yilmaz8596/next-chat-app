@@ -5,37 +5,33 @@ import { useAuth } from "@/context/useAuthContext";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { User } from "@/types";
+import Users from "@/components/shared/Users";
 
 export default function ChatBoard() {
-  const { userId, loading, getUser } = useAuth();
-  const [user, setUser] = useState<User | null>(null);
+  const { userId, loading, getUser, getAllUsers, user } = useAuth();
+  const [users, setUsers] = useState<User[]>([]);
   const router = useRouter();
 
-  useEffect(() => {
-    if (!userId) {
-      router.push("/login");
-    }
+  console.log(user);
 
-    const fetchUser = async () => {
-      const user = await getUser(userId!);
-      setUser(user);
+  useEffect(() => {
+    const fetchUsers = async () => {
+      const users = await getAllUsers();
+      setUsers(users);
     };
 
-    fetchUser();
-  }, [userId, getUser, router]);
+    fetchUsers();
+  }, [getAllUsers]);
 
   if (loading) return <div>Loading...</div>;
 
   if (!user) return <div>Redirecting to login...</div>;
 
   return (
-    <div>
-      <h1>Welcome, {user.userName}</h1>
-      <img
-        src={user.avatar}
-        alt={user.userName}
-        className="w-12 h-12 rounded-full"
-      />
+    <div className="flex h-screen">
+      <div className="flex-shrink-0 w-3/12">
+        <Users users={users} />
+      </div>
     </div>
   );
 }

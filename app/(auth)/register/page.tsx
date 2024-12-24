@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { CustomUpload } from "@/app/components/shared/CustomUpload";
+import { CustomUpload } from "@/components/shared/CustomUpload";
 import { toast } from "sonner";
 
 export default function Login() {
