@@ -1,6 +1,7 @@
 "use client";
 
 import { useForm } from "react-hook-form";
+import { useRouter } from "next/navigation";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { LoginFormData, loginSchema } from "@/app/schemas/loginSchema";
 import { z } from "zod";
@@ -14,6 +15,9 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { toast } from "sonner";
+import { auth } from "@/app/firebase/client";
 
 export default function Login() {
   const form = useForm<LoginFormData>({
@@ -24,8 +28,20 @@ export default function Login() {
     },
   });
 
-  const onSubmit = (values: z.infer<typeof loginSchema>) => {
-    console.log(values);
+  const router = useRouter();
+
+  const onSubmit = async (values: z.infer<typeof loginSchema>) => {
+    try {
+      const { email, password } = values;
+      await signInWithEmailAndPassword(auth, email, password);
+      if (auth.currentUser) {
+        toast.success("Login successful");
+        router.push("/chat-board");
+      }
+    } catch (error) {
+      console.error("Error logging in:", error);
+      toast.error((error as Error).message);
+    }
   };
 
   return (
@@ -63,10 +79,22 @@ export default function Login() {
               )}
             />
             <Button type="submit" className="w-full">
-              Login
+              {form.formState.isSubmitting ? "Loading..." : "Login"}
             </Button>
           </form>
         </Form>
+        <div className="mt-4 text-center">
+          <p>
+            Don't have an account?{" "}
+            <a
+              href="/register"
+              className="text-primary hover:underline"
+              aria-label="Register"
+            >
+              Register
+            </a>
+          </p>
+        </div>
       </div>
     </div>
   );
