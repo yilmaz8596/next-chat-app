@@ -38,6 +38,8 @@ export default function Login() {
         toast.success("Login successful");
         router.push("/chat-board");
       }
+
+      console.log(auth);
     } catch (error) {
       console.error("Error logging in:", error);
       toast.error((error as Error).message);

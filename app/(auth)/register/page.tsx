@@ -2,6 +2,7 @@
 
 import { useRouter } from "next/navigation";
 import { useForm } from "react-hook-form";
+import { useAuth } from "@/context/useAuthContext";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { RegisterFormData, registerSchema } from "@/app/schemas/registerSchema";
 import { z } from "zod";
@@ -16,16 +17,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { CustomUpload } from "@/app/components/shared/CustomUpload";
-import { AvatarGenerator } from "random-avatar-generator";
-import { uploadImage } from "@/app/utils/uploadImage";
-import {
-  createUserWithEmailAndPassword,
-  fetchSignInMethodsForEmail,
-} from "firebase/auth";
 import { toast } from "sonner";
-import { auth } from "@/app/firebase/client";
-import { getFirestore } from "firebase/firestore";
-import { doc, setDoc } from "firebase/firestore";
 
 export default function Login() {
   const form = useForm<RegisterFormData>({
@@ -40,46 +32,15 @@ export default function Login() {
   });
 
   const router = useRouter();
-  const firestore = getFirestore();
+  const { register } = useAuth();
 
   const onSubmit = async (values: z.infer<typeof registerSchema>) => {
-    console.log(values);
     try {
-      const { userName, email, password, avatar } = values;
-      const signInMethods = await fetchSignInMethodsForEmail(auth, email);
-      if (signInMethods.length > 0) {
-        toast.error("User already exists with this email");
-        return;
-      }
-      const userCredential = await createUserWithEmailAndPassword(
-        auth,
-        email,
-        password
-      );
-      const user = userCredential.user;
-      if (avatar) {
-        const avatarUrl = await uploadImage(avatar, `avatars/${user.uid}`);
-        const docRef = doc(firestore, "users", user.uid);
-        await setDoc(docRef, {
-          userName,
-          email,
-          avatarUrl,
-        });
-      } else {
-        const generator = new AvatarGenerator();
-        const avatarUrl = generator.generateRandomAvatar();
-        const docRef = doc(firestore, "users", user.uid);
-        await setDoc(docRef, {
-          userName,
-          email,
-          avatarUrl,
-        });
-      }
+      await register(values);
       router.push("/login");
-      toast.success("Account created successfully");
     } catch (error) {
-      console.error("Error creating account:", error);
-      toast.error("Error creating account");
+      console.error("Error registering:", error);
+      toast.error((error as Error).message);
     }
   };
 
