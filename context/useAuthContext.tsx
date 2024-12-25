@@ -143,6 +143,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           email: data.email,
           avatar: data.avatarUrl,
         };
+        console.log("Mapped users:", currentUser); // Debug log
         return currentUser;
       } else {
         return null;

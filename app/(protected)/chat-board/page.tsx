@@ -23,9 +23,11 @@ export default function ChatBoard() {
     fetchUsers();
   }, [getAllUsers]);
 
-  if (loading) return <div>Loading...</div>;
-
-  if (!user) return <div>Redirecting to login...</div>;
+  useEffect(() => {
+    if (!loading && !userId) {
+      router.push("/login");
+    }
+  }, [loading, userId]);
 
   return (
     <div className="flex h-screen">
