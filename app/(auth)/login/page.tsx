@@ -18,6 +18,7 @@ import { Button } from "@/components/ui/button";
 import { signInWithEmailAndPassword } from "firebase/auth";
 import { toast } from "sonner";
 import { auth } from "@/app/firebase/client";
+import ContinueWithGoogleButton from "@/components/shared/ContinueWithGoogleButton";
 
 export default function Login() {
   const form = useForm<LoginFormData>({
@@ -83,6 +84,7 @@ export default function Login() {
             <Button type="submit" className="w-full">
               {form.formState.isSubmitting ? "Loading..." : "Login"}
             </Button>
+            <ContinueWithGoogleButton />
           </form>
         </Form>
         <div className="mt-4 text-center">
