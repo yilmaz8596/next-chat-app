@@ -23,6 +23,8 @@ export default function ChatBoard() {
     fetchUsers();
   }, [getAllUsers]);
 
+  const filterUsers = users.filter((u) => u.id !== userId);
+
   useEffect(() => {
     if (!loading && !userId) {
       router.push("/login");
@@ -32,7 +34,7 @@ export default function ChatBoard() {
   return (
     <div className="flex h-screen">
       <div className="flex-shrink-0 w-3/12">
-        <Users users={users} />
+        <Users users={filterUsers} />
       </div>
     </div>
   );

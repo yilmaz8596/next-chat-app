@@ -1,6 +1,7 @@
 import { User } from "@/types";
 import MessageCard from "./MessageCard";
 import { Button } from "@/components/ui/button";
+import { MessageInput } from "./MessageInput";
 
 export default function Chatroom({ user }: { user: User }) {
   // Test messages
@@ -50,18 +51,7 @@ export default function Chatroom({ user }: { user: User }) {
           ))}
         </div>
       </div>
-
-      {/* Message input */}
-      <div className="p-4 border-t">
-        <div className="flex items-center space-x-2 max-w-4xl mx-auto">
-          <input
-            type="text"
-            placeholder="Type a message..."
-            className="flex-grow p-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-primary"
-          />
-          <Button>Send</Button>
-        </div>
-      </div>
+      <MessageInput />
     </div>
   );
 }
