@@ -1,81 +1,112 @@
 "use client";
 
 import { useState } from "react";
-import UserCard from "./UserCard";
-import { User } from "@/types";
-import { Button } from "@/components/ui/button";
-import { cn } from "@/lib/utils";
+import { User, UsersProps } from "@/types";
 import Chatroom from "./Chatroom";
-import LogoutButton from "./LogoutButton";
+import { toast } from "sonner";
+import { getDocs, addDoc, query, serverTimestamp } from "firebase/firestore";
+import { collection, where } from "firebase/firestore";
+import { getFirestore } from "firebase/firestore";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { Button } from "@/components/ui/button";
+import { Menu } from "lucide-react";
+import { SideDrawerContent } from "./SideDrawerContent";
 
-export default function Users({ users }: { users: User[] }) {
-  const [activeTab, setActiveTab] = useState("users");
+export default function Users({
+  users,
+  userData,
+  selectedChatRoom,
+  setSelectedChatRoom,
+}: UsersProps) {
+  const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+
+  const convoUser = users.find(
+    (user) => user.id === selectedChatRoom?.otherData.id
+  );
+
+  const createChat = async (user: User) => {
+    if (!userData) {
+      toast.error("User data is not available");
+      return;
+    }
+    try {
+      const firestore = getFirestore();
+      const existingChatroom = query(
+        collection(firestore, "chatrooms"),
+        where("users", "==", [userData.id, user.id])
+      );
+      const existingChatroomSnapshot = await getDocs(existingChatroom);
+      if (!existingChatroomSnapshot.empty) {
+        setSelectedChatRoom
+          ? setSelectedChatRoom({
+              id: existingChatroomSnapshot.docs[0].id,
+              myData: { ...userData, id: userData.id || "" },
+              otherData: user,
+            })
+          : toast.error("Error selecting chatroom");
+        setIsDrawerOpen(false);
+        return;
+      }
+
+      const usersData = {
+        [userData.id?.toString() || "unknown"]: userData,
+        [user.id!]: user,
+      };
+
+      const chatroomData = {
+        users: [userData.id, user.id],
+        usersData,
+        timestamp: serverTimestamp(),
+        lastMessage: null,
+      };
+
+      const chatroomRef = await addDoc(
+        collection(firestore, "chatrooms"),
+        chatroomData
+      );
+      console.log("Chatroom created:", chatroomRef.id);
+      setSelectedChatRoom({
+        id: chatroomRef.id,
+        myData: { ...userData, id: userData.id || "" },
+        otherData: user,
+      });
+      setIsDrawerOpen(false);
+      toast.success("Chatroom created successfully");
+    } catch (error) {
+      console.error("Error creating chat:", error);
+      toast.error((error as Error).message);
+    }
+  };
 
   return (
     <div className="h-screen w-screen flex flex-col">
-      {/* Tabs */}
-      <div className="flex items-center justify-between p-4 border-b">
-        <div className="max-w-sm grid grid-cols-2 max-md:grid-cols-1 gap-2 p-4">
-          <Button
-            onClick={() => setActiveTab("users")}
-            variant={activeTab === "chatrooms" ? "outline" : "default"}
-            className={cn(
-              "w-full",
-              activeTab === "users" && "bg-primary text-primary-foreground"
-            )}
-          >
-            Users
+      <Sheet open={isDrawerOpen} onOpenChange={setIsDrawerOpen}>
+        <SheetTrigger asChild>
+          <Button variant="outline" size="icon" className="m-4">
+            <Menu className="h-4 w-4" />
           </Button>
-          <Button
-            onClick={() => setActiveTab("chatrooms")}
-            variant={activeTab === "users" ? "outline" : "default"}
-            className={cn(
-              "w-full",
-              activeTab === "chatrooms" && "bg-primary text-primary-foreground"
-            )}
-          >
-            <span className="truncate">Chatrooms</span>
-          </Button>
-        </div>
-        <LogoutButton />
+        </SheetTrigger>
+        <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+          <SideDrawerContent
+            users={users}
+            userData={userData}
+            createChat={createChat}
+          />
+        </SheetContent>
+      </Sheet>
+
+      {/* Main chat area */}
+      <div className="flex-1 overflow-hidden">
+        {convoUser ? (
+          <Chatroom user={convoUser} />
+        ) : (
+          <div className="h-full flex items-center justify-center">
+            <p className="text-muted-foreground">
+              Select a chat to start messaging
+            </p>
+          </div>
+        )}
       </div>
-
-      {/* Content */}
-      {activeTab === "users" ? (
-        // Users view
-        <div className="grid gap-1 p-2 overflow-y-auto max-w-sm">
-          {users.map((user) => (
-            <UserCard
-              key={user.id}
-              {...user}
-              latestMessage="Click to start chatting"
-              time="12:00"
-              type="user"
-            />
-          ))}
-        </div>
-      ) : (
-        // Chatrooms view with conversation on the right
-        <div className="flex overflow-hidden">
-          {/* Left side: chat list */}
-          <div className="w-1/5 border-r overflow-y-auto">
-            {users.map((chatRoom) => (
-              <UserCard
-                key={chatRoom.id}
-                {...chatRoom}
-                latestMessage="Last message"
-                time="12:00"
-                type="chat"
-              />
-            ))}
-          </div>
-
-          {/* Right side: active chat */}
-          <div className="w-4/5 flex flex-col">
-            <Chatroom user={users[0]} />
-          </div>
-        </div>
-      )}
     </div>
   );
 }

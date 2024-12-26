@@ -1,7 +1,6 @@
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
-import { signOut } from "firebase/auth";
 import { auth } from "@/app/firebase/client";
 
 export default function LogoutButton() {

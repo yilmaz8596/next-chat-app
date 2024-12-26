@@ -3,20 +3,61 @@ import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Send } from "lucide-react";
+import {
+  getFirestore,
+  collection,
+  addDoc,
+  doc,
+  updateDoc,
+} from "firebase/firestore";
+import { MessageData } from "@/types";
+import { serverTimestamp } from "firebase/firestore";
 
-export function MessageInput() {
+interface MessageInputProps {
+  chatRoomId: string;
+  senderId: string;
+  receiverId: string;
+}
+
+export function MessageInput({
+  chatRoomId,
+  senderId,
+  receiverId,
+}: MessageInputProps) {
   const [message, setMessage] = useState("");
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const firestore = getFirestore();
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // Handle sending the message here
-    console.log("Sending message:", message);
-    setMessage("");
+    if (message.trim() === "") return;
+
+    try {
+      const messageData: MessageData = {
+        chatRoomId,
+        senderId,
+        receiverId,
+        content: message,
+        timestamp: serverTimestamp(),
+      };
+
+      await addDoc(collection(firestore, "messages"), messageData);
+
+      const chatroomRef = doc(firestore, "chatrooms", chatRoomId);
+      await updateDoc(chatroomRef, {
+        lastMessage: message,
+        timestamp: serverTimestamp(),
+      });
+
+      setMessage("");
+    } catch (error) {
+      console.error("Error adding message: ", error);
+    }
   };
 
   return (
     <form onSubmit={handleSubmit} className="p-4 border-t">
-      <div className="flex items-center space-x-2 max-w-4xl mx-auto">
+      <div className="flex items-center space-x-2 max-w-4xl">
         <Input
           type="text"
           placeholder="Type a message..."

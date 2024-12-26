@@ -1,24 +1,26 @@
 import { User } from "@/types";
-import Image from "next/image";
 
 interface UserCardProps extends User {
   latestMessage?: string;
   time?: string;
   type?: string;
+  onClick?: () => void;
 }
 
 export default function UserCard({
   userName,
-  email,
   avatar,
   latestMessage,
   time,
   type,
+  onClick,
 }: UserCardProps) {
   return (
-    <div className="flex items-center p-4 border-b border-gray-200 relative hover:cursor-pointer">
-      {/* Avatar on the left */}
-      <div className="flex-shrink-0 mr-4 relative">
+    <div
+      className="flex items-center p-4 hover:bg-accent transition-colors duration-200 cursor-pointer"
+      onClick={onClick}
+    >
+      <div className="flex-shrink-0 mr-4">
         <div className="w-12 h-12 rounded-full overflow-hidden">
           <img
             className="w-full h-full object-cover"
@@ -28,23 +30,17 @@ export default function UserCard({
         </div>
       </div>
 
-      {type == "chat" && (
-        /* Name, latest message, and time on the right */
-        <div className="flex-1">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">{userName}</h2>
-          </div>
-          <p className="text-gray-500 truncate">{latestMessage}</p>
-        </div>
-      )}
+      <div className="flex-1 min-w-0">
+        <h2 className="text-lg font-semibold truncate">{userName}</h2>
+        {type === "chat" && (
+          <p className="text-sm text-muted-foreground truncate">
+            {latestMessage}
+          </p>
+        )}
+      </div>
 
-      {type == "user" && (
-        /* Name */
-        <div className="flex-1">
-          <div className="flex items-center justify-between">
-            <h2 className="text-lg font-semibold">{userName}</h2>
-          </div>
-        </div>
+      {time && type === "chat" && (
+        <span className="text-xs text-muted-foreground">{time}</span>
       )}
     </div>
   );

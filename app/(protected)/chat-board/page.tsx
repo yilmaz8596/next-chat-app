@@ -4,15 +4,20 @@ import { useState } from "react";
 import { useAuth } from "@/context/useAuthContext";
 import { useEffect } from "react";
 import { useRouter } from "next/navigation";
-import { User } from "@/types";
+import { useChatroom } from "@/app/hooks/useChatroom";
+import { User, SelectedChatData } from "@/types";
 import Users from "@/components/shared/Users";
 
 export default function ChatBoard() {
   const { userId, loading, getUser, getAllUsers, user } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
+  const [selectedChatData, setSelectedChatData] =
+    useState<SelectedChatData | null>(null);
   const router = useRouter();
-
-  console.log(user);
+  const { chatrooms } = useChatroom();
+  console.log(chatrooms);
+  // console.log(user);
+  console.log(selectedChatData);
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -34,7 +39,14 @@ export default function ChatBoard() {
   return (
     <div className="flex h-screen">
       <div className="flex-shrink-0 w-3/12">
-        <Users users={filterUsers} />
+        <Users
+          users={filterUsers}
+          userData={user}
+          setSelectedChatRoom={(data: SelectedChatData) =>
+            setSelectedChatData(data)
+          }
+          selectedChatRoom={selectedChatData}
+        />
       </div>
     </div>
   );
