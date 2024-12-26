@@ -12,20 +12,22 @@ import {
 } from "firebase/firestore";
 import { MessageData } from "@/types";
 import { serverTimestamp } from "firebase/firestore";
+import { User } from "@/types";
 
 interface MessageInputProps {
   chatRoomId: string;
   senderId: string;
   receiverId: string;
+  user: User;
 }
 
 export function MessageInput({
   chatRoomId,
   senderId,
   receiverId,
+  user,
 }: MessageInputProps) {
   const [message, setMessage] = useState("");
-
   const firestore = getFirestore();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -39,9 +41,17 @@ export function MessageInput({
         receiverId,
         content: message,
         timestamp: serverTimestamp(),
+        avatar: user?.avatar,
+        time: new Date().toLocaleTimeString(), // Add current time for display
       };
 
-      await addDoc(collection(firestore, "messages"), messageData);
+      console.log("Sending message with data:", messageData); // Debug log
+
+      const docRef = await addDoc(
+        collection(firestore, "messages"),
+        messageData
+      );
+      console.log("Message sent with ID:", docRef.id);
 
       const chatroomRef = doc(firestore, "chatrooms", chatRoomId);
       await updateDoc(chatroomRef, {

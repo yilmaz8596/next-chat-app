@@ -2,7 +2,7 @@ import { User } from "@/types";
 
 interface UserCardProps extends User {
   latestMessage?: string;
-  time?: string;
+  time?: string | Date;
   type?: string;
   onClick?: () => void;
 }

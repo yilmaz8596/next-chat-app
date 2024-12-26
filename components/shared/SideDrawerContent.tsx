@@ -1,9 +1,14 @@
+"use client";
+
 import { useState } from "react";
+import { useMessages } from "@/app/hooks/useMessages";
+import { useChatroom } from "@/app/hooks/useChatroom";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import UserCard from "./UserCard";
 import { User, UserData } from "@/types";
 import LogoutButton from "./LogoutButton";
+import { Timestamp } from "firebase/firestore";
 
 interface SideDrawerContentProps {
   users: User[];
@@ -11,12 +16,28 @@ interface SideDrawerContentProps {
   createChat: (user: User) => void;
 }
 
-export function SideDrawerContent({
+export default function SideDrawerContent({
   users,
   userData,
   createChat,
 }: SideDrawerContentProps) {
   const [activeTab, setActiveTab] = useState("users");
+
+  const { chatrooms } = useChatroom();
+  const chatroom = chatrooms.find((chatroom) =>
+    chatroom.users.includes(userData?.id || "")
+  );
+  const { messages } = useMessages(chatroom?.id || "");
+  const latestMessage = messages[messages.length - 1];
+
+  const formattedTime = latestMessage?.timestamp
+    ? new Timestamp(
+        latestMessage.timestamp.seconds,
+        latestMessage.timestamp.nanoseconds
+      )
+        .toDate()
+        .toLocaleString()
+    : "No time";
 
   return (
     <div className="h-full flex flex-col">
@@ -64,8 +85,8 @@ export function SideDrawerContent({
               <UserCard
                 key={chatRoom.id}
                 {...chatRoom}
-                latestMessage="Last message"
-                time="12:00"
+                latestMessage={latestMessage?.content || "No messages"}
+                time={formattedTime}
                 type="chat"
                 onClick={() => createChat(chatRoom)}
               />

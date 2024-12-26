@@ -50,9 +50,14 @@ interface UsersProps {
 }
 
 interface Message {
-  id?: string; // Optional since Firestore will generate this
+  id: string;
+  senderId: string; // Make sure this matches the ID format you're using
   content: string;
-  timestamp?: any; // or use proper Firebase Timestamp type
+  time: string;
+  timestamp: any;
+  avatar: string;
+  chatRoomId: string;
+  receiverId: string;
 }
 
 interface MessageData {
@@ -60,5 +65,7 @@ interface MessageData {
   senderId: string;
   receiverId: string;
   content: string;
-  timestamp?: ReturnType<typeof serverTimestamp>;
+  timestamp: any; // or use FirebaseFirestore.Timestamp
+  avatar: string;
+  time?: string; // Add this for displaying time
 }

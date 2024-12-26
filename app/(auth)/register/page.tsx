@@ -16,6 +16,13 @@ import {
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { CustomUpload } from "@/components/shared/CustomUpload";
 import { toast } from "sonner";
 
@@ -28,6 +35,7 @@ export default function Login() {
       password: "",
       confirmPassword: "",
       avatar: undefined,
+      gender: "male",
     },
   });
 
@@ -116,6 +124,30 @@ export default function Login() {
                 )}
               />
             </div>
+            <FormField
+              control={form.control}
+              name="gender"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Gender</FormLabel>
+                  <Select
+                    onValueChange={field.onChange}
+                    defaultValue={field.value}
+                  >
+                    <FormControl>
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select your gender" />
+                      </SelectTrigger>
+                    </FormControl>
+                    <SelectContent>
+                      <SelectItem value="male">Male</SelectItem>
+                      <SelectItem value="female">Female</SelectItem>
+                    </SelectContent>
+                  </Select>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
             <CustomUpload control={form.control} name="avatar" label="Avatar" />
             <Button type="submit" className="w-full">
               {form.formState.isSubmitting ? "Submitting..." : "Register"}

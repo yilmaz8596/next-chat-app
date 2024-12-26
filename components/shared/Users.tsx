@@ -7,10 +7,16 @@ import { toast } from "sonner";
 import { getDocs, addDoc, query, serverTimestamp } from "firebase/firestore";
 import { collection, where } from "firebase/firestore";
 import { getFirestore } from "firebase/firestore";
-import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { Button } from "@/components/ui/button";
 import { Menu } from "lucide-react";
-import { SideDrawerContent } from "./SideDrawerContent";
+import SideDrawerContent from "./SideDrawerContent";
 
 export default function Users({
   users,
@@ -33,24 +39,41 @@ export default function Users({
       const firestore = getFirestore();
       const existingChatroom = query(
         collection(firestore, "chatrooms"),
-        where("users", "==", [userData.id, user.id])
+        where("users", "in", [
+          [userData.id, user.id],
+          [user.id, userData.id],
+        ])
       );
       const existingChatroomSnapshot = await getDocs(existingChatroom);
+
       if (!existingChatroomSnapshot.empty) {
-        setSelectedChatRoom
-          ? setSelectedChatRoom({
-              id: existingChatroomSnapshot.docs[0].id,
-              myData: { ...userData, id: userData.id || "" },
-              otherData: user,
-            })
-          : toast.error("Error selecting chatroom");
+        setSelectedChatRoom({
+          id: existingChatroomSnapshot.docs[0].id,
+          myData: { ...userData, id: userData.id || "" },
+          otherData: user,
+        });
         setIsDrawerOpen(false);
         return;
       }
 
+      // Ensure both users have all required fields
+      const cleanUserData = {
+        id: userData.id || "",
+        email: userData.email,
+        userName: userData.userName,
+        avatar: userData.avatar, // Provide a default avatar
+      };
+
+      const cleanOtherUser = {
+        id: user.id || "",
+        email: user.email,
+        userName: user.userName,
+        avatar: user.avatar, // Provide a default avatar
+      };
+
       const usersData = {
-        [userData.id?.toString() || "unknown"]: userData,
-        [user.id!]: user,
+        [userData.id!]: cleanUserData,
+        [user.id!]: cleanOtherUser,
       };
 
       const chatroomData = {
@@ -60,15 +83,17 @@ export default function Users({
         lastMessage: null,
       };
 
+      console.log("Creating chatroom with data:", chatroomData); // Debug log
+
       const chatroomRef = await addDoc(
         collection(firestore, "chatrooms"),
         chatroomData
       );
-      console.log("Chatroom created:", chatroomRef.id);
+
       setSelectedChatRoom({
         id: chatroomRef.id,
-        myData: { ...userData, id: userData.id || "" },
-        otherData: user,
+        myData: cleanUserData,
+        otherData: cleanOtherUser,
       });
       setIsDrawerOpen(false);
       toast.success("Chatroom created successfully");
@@ -87,6 +112,9 @@ export default function Users({
           </Button>
         </SheetTrigger>
         <SheetContent side="left" className="w-[300px] sm:w-[400px]">
+          <SheetHeader>
+            <SheetTitle>Chats</SheetTitle>
+          </SheetHeader>
           <SideDrawerContent
             users={users}
             userData={userData}

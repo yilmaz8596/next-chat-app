@@ -76,7 +76,7 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
   const router = useRouter();
   const register = async (values: z.infer<typeof registerSchema>) => {
     try {
-      const { userName, email, password, avatar } = values;
+      const { userName, email, password, avatar, gender } = values;
       const signInMethods = await fetchSignInMethodsForEmail(auth, email);
       if (signInMethods.length > 0) {
         toast.error("User already exists with this email");
@@ -95,15 +95,20 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
           userName,
           email,
           avatarUrl,
+          gender,
         });
       } else {
-        const generator = new AvatarGenerator();
-        const avatarUrl = generator.generateRandomAvatar();
+        const avatarUrl =
+          gender === "male"
+            ? "https://cdn-icons-png.flaticon.com/512/4128/4128176.png"
+            : "https://cdn-icons-png.flaticon.com/512/6997/6997662.png";
+
         const docRef = doc(firestore, "users", user.uid);
         await setDoc(docRef, {
           userName,
           email,
           avatarUrl,
+          gender,
         });
       }
       router.push("/login");

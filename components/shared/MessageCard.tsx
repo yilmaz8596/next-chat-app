@@ -2,24 +2,36 @@ import { Message, User } from "@/types";
 
 export default function MessageCard({
   message,
-  user,
+  currentUser, // Changed from user to currentUser for clarity
+  otherUser,
 }: {
   message: Message;
-  user: User;
+  currentUser: User;
+  otherUser: User;
 }) {
-  const isMessageFromCurrentUser = message.sender === user.userName;
+  // Check each message individually
+  const isCurrentUserMessage = message.senderId === currentUser.id;
+
+  console.log("Message comparison:", {
+    messageSenderId: message.senderId,
+    currentUserId: currentUser.id,
+    isCurrentUserMessage,
+  });
 
   return (
     <div
       className={`flex w-full mb-4 ${
-        isMessageFromCurrentUser ? "justify-end" : "justify-start"
+        isCurrentUserMessage ? "justify-start" : "justify-end"
       }`}
     >
       <div className="flex max-w-[80%] gap-2">
-        {!isMessageFromCurrentUser && (
+        {isCurrentUserMessage && (
           <div className="w-8 h-8 flex-shrink-0">
             <img
-              src={message.avatar}
+              src={
+                currentUser?.avatar ||
+                "https://cdn-icons-png.flaticon.com/512/847/847969.png"
+              }
               alt="Avatar"
               className="rounded-full w-full h-full object-cover"
             />
@@ -28,9 +40,9 @@ export default function MessageCard({
 
         <div
           className={`p-3 rounded-lg ${
-            isMessageFromCurrentUser
-              ? "bg-pink-500 rounded-tr-none"
-              : "bg-[#19d39e] rounded-tl-none"
+            isCurrentUserMessage
+              ? "bg-[#19d39e] rounded-tl-none"
+              : "bg-pink-500 rounded-tr-none"
           }`}
         >
           <p className="text-white">{message.content}</p>
@@ -39,10 +51,10 @@ export default function MessageCard({
           </span>
         </div>
 
-        {isMessageFromCurrentUser && (
+        {!isCurrentUserMessage && (
           <div className="w-8 h-8 flex-shrink-0">
             <img
-              src={message.avatar}
+              src={otherUser?.avatar}
               alt="Avatar"
               className="rounded-full w-full h-full object-cover"
             />

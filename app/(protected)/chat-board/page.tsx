@@ -15,6 +15,9 @@ export default function ChatBoard() {
     useState<SelectedChatData | null>(null);
   const router = useRouter();
   const { chatrooms } = useChatroom();
+  const { user: authUser } = useAuth();
+  console.log(authUser);
+
   console.log(chatrooms);
   // console.log(user);
   console.log(selectedChatData);

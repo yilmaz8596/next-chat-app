@@ -32,6 +32,9 @@ export const registerSchema = z
         "Only .jpg, .jpeg, .png and .webp formats are supported"
       )
       .optional(),
+    gender: z.enum(["male", "female"], {
+      required_error: "Please select a gender",
+    }),
   })
   .refine((data) => data.password === data.confirmPassword, {
     message: "Passwords do not match",
