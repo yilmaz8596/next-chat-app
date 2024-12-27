@@ -59,7 +59,7 @@ export default function CallRoom({
   }
 
   return (
-    <div className="w-full h-full">
+    <div className="w-1/2 h-1/2 mx-auto">
       <LiveKitRoom
         data-lk-theme="default"
         serverUrl={process.env.NEXT_PUBLIC_LIVEKIT_URL}

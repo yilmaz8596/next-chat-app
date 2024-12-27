@@ -2,7 +2,7 @@
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
-import { Send } from "lucide-react";
+import { Send, SmileIcon } from "lucide-react";
 import {
   getFirestore,
   collection,
@@ -13,6 +13,13 @@ import {
 import { MessageData } from "@/types";
 import { serverTimestamp } from "firebase/firestore";
 import { User } from "@/types";
+import EmojiPicker from "emoji-picker-react";
+import { EmojiClickData } from "emoji-picker-react";
+import {
+  Popover,
+  PopoverContent,
+  PopoverTrigger,
+} from "@/components/ui/popover";
 
 interface MessageInputProps {
   chatRoomId: string;
@@ -28,6 +35,7 @@ export function MessageInput({
   user,
 }: MessageInputProps) {
   const [message, setMessage] = useState("");
+  const [showEmojiPicker, setShowEmojiPicker] = useState(false);
   const firestore = getFirestore();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -42,16 +50,13 @@ export function MessageInput({
         content: message,
         timestamp: serverTimestamp(),
         avatar: user?.avatar,
-        time: new Date().toLocaleTimeString(), // Add current time for display
+        time: new Date().toLocaleTimeString(),
       };
-
-      console.log("Sending message with data:", messageData); // Debug log
 
       const docRef = await addDoc(
         collection(firestore, "messages"),
         messageData
       );
-      console.log("Message sent with ID:", docRef.id);
 
       const chatroomRef = doc(firestore, "chatrooms", chatRoomId);
       await updateDoc(chatroomRef, {
@@ -65,16 +70,34 @@ export function MessageInput({
     }
   };
 
+  const handleEmojiClick = (emojiData: EmojiClickData) => {
+    setMessage(message + emojiData.emoji);
+  };
+
   return (
     <form onSubmit={handleSubmit} className="p-4 border-t">
-      <div className="flex items-center space-x-2 max-w-4xl">
-        <Input
-          type="text"
-          placeholder="Type a message..."
-          value={message}
-          onChange={(e) => setMessage(e.target.value)}
-          className="flex-grow"
-        />
+      <div className="flex items-center space-x-2 max-w-4xl relative">
+        <div className="flex-grow relative">
+          <Input
+            type="text"
+            placeholder="Type a message..."
+            value={message}
+            onChange={(e) => setMessage(e.target.value)}
+            className="pr-10"
+          />
+          <Popover open={showEmojiPicker} onOpenChange={setShowEmojiPicker}>
+            <PopoverTrigger asChild>
+              <SmileIcon className="absolute right-3 top-1/2 -translate-y-1/2 h-5 w-5 cursor-pointer text-gray-500 hover:text-gray-700" />
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0 border-none">
+              <EmojiPicker
+                onEmojiClick={handleEmojiClick}
+                height={350}
+                width={300}
+              />
+            </PopoverContent>
+          </Popover>
+        </div>
         <Button type="submit" size="icon">
           <Send className="h-4 w-4" />
           <span className="sr-only">Send message</span>
