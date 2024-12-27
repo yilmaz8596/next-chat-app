@@ -41,7 +41,9 @@ export default function UserCard({
       </div>
 
       {time && type === "chat" && (
-        <span className="text-xs text-muted-foreground">{time}</span>
+        <span className="text-xs text-muted-foreground">
+          {time instanceof Date ? time.toLocaleString() : time}
+        </span>
       )}
     </div>
   );
