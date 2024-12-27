@@ -10,7 +10,7 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        sans: ['"Yanone Kaffeesatz"', "sans-serif"], // Add Yanone Kaffeesatz
+        sans: ["Yanone Kaffeesatz", "sans-serif"], // Add Yanone Kaffeesatz
       },
       colors: {
         background: "hsl(var(--background))",
