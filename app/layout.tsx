@@ -12,7 +12,7 @@ export const metadata: Metadata = {
 const yanone = Yanone_Kaffeesatz({
   subsets: ["latin"],
   weight: ["200", "300", "400", "500", "600", "700"],
-  display: "swap", // Ensures font is swapped quickly
+  display: "swap",
   preload: true,
   adjustFontFallback: false,
 });
@@ -25,6 +25,13 @@ export default function RootLayout({
   return (
     <AuthProvider>
       <html lang="en">
+        <head>
+          <link
+            rel="preconnect"
+            href="https://fonts.gstatic.com"
+            crossOrigin="anonymous"
+          />
+        </head>
         <body
           className={`font-sans bg-background text-foreground ${yanone.className}`}
         >
