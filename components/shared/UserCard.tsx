@@ -27,6 +27,8 @@ export default function UserCard({
             className="w-full h-full object-cover"
             src={avatar}
             alt="Avatar"
+            width={48}
+            height={48}
           />
         </div>
       </div>
