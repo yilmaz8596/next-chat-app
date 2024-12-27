@@ -84,9 +84,11 @@ export default function Login() {
             <Button type="submit" className="w-full">
               {form.formState.isSubmitting ? "Loading..." : "Login"}
             </Button>
-            <ContinueWithGoogleButton />
           </form>
         </Form>
+        <div className="mt-2">
+          <ContinueWithGoogleButton />
+        </div>
         <div className="mt-4 text-center">
           <p>
             Don't have an account?{" "}
