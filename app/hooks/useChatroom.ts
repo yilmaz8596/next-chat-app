@@ -39,7 +39,7 @@ export const useChatroom = () => {
     };
 
     fetchChatrooms();
-  }, []);
+  }, [firestore]);
 
   return { chatrooms, loading, error };
 };

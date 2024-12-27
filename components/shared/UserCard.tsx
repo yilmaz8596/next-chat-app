@@ -1,4 +1,5 @@
 import { User } from "@/types";
+import Image from "next/image";
 
 interface UserCardProps extends User {
   latestMessage?: string;
@@ -22,7 +23,7 @@ export default function UserCard({
     >
       <div className="flex-shrink-0 mr-4">
         <div className="w-12 h-12 rounded-full overflow-hidden">
-          <img
+          <Image
             className="w-full h-full object-cover"
             src={avatar}
             alt="Avatar"

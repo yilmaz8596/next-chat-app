@@ -58,6 +58,8 @@ export function MessageInput({
         messageData
       );
 
+      console.log("Message written with ID: ", docRef.id);
+
       const chatroomRef = doc(firestore, "chatrooms", chatRoomId);
       await updateDoc(chatroomRef, {
         lastMessage: message,

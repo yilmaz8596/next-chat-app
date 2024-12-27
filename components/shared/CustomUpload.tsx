@@ -14,6 +14,7 @@ import {
   FormLabel,
   FormMessage,
 } from "@/components/ui/form";
+import Image from "next/image";
 
 interface CustomUploadProps {
   control: Control<RegisterFormData>;
@@ -72,7 +73,7 @@ function Dropzone({ onUpload, value }: DropzoneProps) {
       <input {...getInputProps()} />
       {value ? (
         <div className="flex flex-col items-center">
-          <img
+          <Image
             src={URL.createObjectURL(value)}
             alt="Preview"
             className="w-20 h-20 object-cover rounded-full mb-2"

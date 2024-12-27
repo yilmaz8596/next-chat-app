@@ -9,7 +9,7 @@ import { User, SelectedChatData } from "@/types";
 import Users from "@/components/shared/Users";
 
 export default function ChatBoard() {
-  const { userId, loading, getUser, getAllUsers, user } = useAuth();
+  const { userId, loading, getAllUsers, user } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [selectedChatData, setSelectedChatData] =
     useState<SelectedChatData | null>(null);
@@ -37,7 +37,7 @@ export default function ChatBoard() {
     if (!loading && !userId) {
       router.push("/login");
     }
-  }, [loading, userId]);
+  }, [loading, userId, router]);
 
   return (
     <div className="flex h-screen">

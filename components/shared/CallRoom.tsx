@@ -45,7 +45,7 @@ export default function CallRoom({
     };
 
     fetchToken();
-  }, [user?.userName, currentChatroom?.id]);
+  }, [user?.userName, currentChatroom?.id, currentChatroom]);
 
   if (!currentChatroom) {
     return (

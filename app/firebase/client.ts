@@ -1,6 +1,6 @@
 // firebase/client.ts
 import { initializeApp } from "firebase/app";
-import { getApps, FirebaseApp } from "firebase/app";
+import { getApps } from "firebase/app";
 import { Auth } from "firebase/auth";
 import { FirebaseStorage } from "firebase/storage";
 import { getAuth } from "firebase/auth";

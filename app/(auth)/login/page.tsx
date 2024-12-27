@@ -19,6 +19,7 @@ import { signInWithEmailAndPassword } from "firebase/auth";
 import { toast } from "sonner";
 import { auth } from "@/app/firebase/client";
 import ContinueWithGoogleButton from "@/components/shared/ContinueWithGoogleButton";
+import Link from "next/link";
 
 export default function Login() {
   const form = useForm<LoginFormData>({
@@ -92,13 +93,13 @@ export default function Login() {
         <div className="mt-4 text-center">
           <p>
             Don't have an account?{" "}
-            <a
+            <Link
               href="/register"
               className="text-primary hover:underline"
               aria-label="Register"
             >
               Register
-            </a>
+            </Link>
           </p>
         </div>
       </div>
