@@ -25,9 +25,7 @@ export default function RootLayout({
   return (
     <AuthProvider>
       <html lang="en">
-        <body
-          className={`font-sans bg-background text-foreground ${yanone.className}`}
-        >
+        <body className="bg-background text-foreground font-sans">
           <main>{children}</main>
           <Toaster />
         </body>
