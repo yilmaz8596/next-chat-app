@@ -14,7 +14,7 @@ const yanone = Yanone_Kaffeesatz({
   weight: ["200", "300", "400", "500", "600", "700"],
   display: "swap",
   preload: true,
-  adjustFontFallback: false,
+  adjustFontFallback: true,
 });
 
 export default function RootLayout({
@@ -25,12 +25,6 @@ export default function RootLayout({
   return (
     <AuthProvider>
       <html lang="en">
-        <head>
-          <link
-            href="https://fonts.googleapis.com/css2?family=Yanone+Kaffeesatz:wght@200;300;400;500;600;700&display=swap"
-            rel="stylesheet"
-          />
-        </head>
         <body
           className={`font-sans bg-background text-foreground ${yanone.className}`}
         >
