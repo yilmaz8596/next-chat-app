@@ -14,6 +14,7 @@ const yanone = Yanone_Kaffeesatz({
   weight: ["200", "300", "400", "500", "600", "700"],
   display: "swap", // Ensures font is swapped quickly
   preload: true,
+  adjustFontFallback: false,
 });
 
 export default function RootLayout({
