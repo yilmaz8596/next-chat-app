@@ -92,7 +92,7 @@ export default function Login() {
         </div>
         <div className="mt-4 text-center">
           <p>
-            Don't have an account?{" "}
+            Don't have an account?
             <Link
               href="/register"
               className="text-primary hover:underline"

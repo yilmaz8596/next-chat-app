@@ -55,7 +55,7 @@ export default function MessageCard({
 
         {!isCurrentUserMessage && (
           <div className="w-8 h-8 flex-shrink-0">
-            <img
+            <Image
               src={otherUser?.avatar}
               alt="Avatar"
               className="rounded-full w-full h-full object-cover"
