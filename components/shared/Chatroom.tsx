@@ -1,5 +1,6 @@
 "use client";
 
+import { useState, useMemo } from "react";
 import { useChatroom } from "@/app/hooks/useChatroom";
 import { useAuth } from "@/context/useAuthContext";
 import { useMessages } from "@/app/hooks/useMessages";
@@ -7,13 +8,19 @@ import { User } from "@/types";
 import MessageCard from "./MessageCard";
 import { MessageInput } from "./MessageInput";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { VideoIcon, MicIcon as AudioIcon } from "lucide-react";
+import CallRoom from "./CallRoom";
+import "@livekit/components-styles";
 
 export default function Chatroom({ user }: { user: User }) {
+  const [callType, setCallType] = useState<"audio" | "video" | null>(null);
   const { chatrooms, loading } = useChatroom();
   const { user: authUser } = useAuth();
 
-  const chatroom = chatrooms.find((chatroom) =>
-    chatroom.users.includes(user.id || "")
+  const chatroom = useMemo(
+    () => chatrooms.find((chatroom) => chatroom.users.includes(user.id || "")),
+    [chatrooms, user.id]
   );
 
   const otherUserId = chatroom?.users.find((id) => id !== authUser?.id);
@@ -22,12 +29,6 @@ export default function Chatroom({ user }: { user: User }) {
   const { messages: chatMessages, loading: messagesLoading } = useMessages(
     chatroom?.id || ""
   );
-
-  console.log("Chat data:", {
-    authUserId: authUser?.id,
-    otherUserId,
-    messages: chatMessages,
-  });
 
   if (loading || messagesLoading) {
     return <div>Loading chat...</div>;
@@ -58,13 +59,30 @@ export default function Chatroom({ user }: { user: User }) {
           ))}
         </div>
       </div>
+      <div className="flex items-center justify-between p-4 w-full">
+        <MessageInput
+          chatRoomId={chatroom.id!}
+          senderId={authUser.id}
+          receiverId={otherUser.id!}
+          user={authUser}
+        />
+        <div className="flex items-center justify-center gap-2">
+          <Button onClick={() => setCallType("video")}>
+            <VideoIcon className="h-5 w-5" />
+          </Button>
 
-      <MessageInput
-        chatRoomId={chatroom.id!}
-        senderId={authUser.id}
-        receiverId={otherUser.id!}
-        user={authUser}
-      />
+          <Button onClick={() => setCallType("audio")}>
+            <AudioIcon className="h-5 w-5" />
+          </Button>
+        </div>
+      </div>
+      {callType && (
+        <CallRoom
+          video={callType === "video"}
+          audio={callType === "audio"}
+          handleDisconnect={() => setCallType(null)}
+        />
+      )}
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { Message, User } from "@/types";
+import Image from "next/image";
 
 export default function MessageCard({
   message,
@@ -18,6 +19,8 @@ export default function MessageCard({
     isCurrentUserMessage,
   });
 
+  console.log(currentUser.avatar);
+
   return (
     <div
       className={`flex w-full mb-4 ${
@@ -27,12 +30,11 @@ export default function MessageCard({
       <div className="flex max-w-[80%] gap-2">
         {isCurrentUserMessage && (
           <div className="w-8 h-8 flex-shrink-0">
-            <img
-              src={
-                currentUser?.avatar ||
-                "https://cdn-icons-png.flaticon.com/512/847/847969.png"
-              }
+            <Image
+              src={currentUser?.avatar.toString()}
               alt="Avatar"
+              width={32}
+              height={32}
               className="rounded-full w-full h-full object-cover"
             />
           </div>
